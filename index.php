@@ -19,6 +19,7 @@ require_capability('report/fileusage:view', $context);
 
 $report       = optional_param('report', '', PARAM_ALPHA);
 $delete       = optional_param('delete', 0, PARAM_INT);
+$download     = optional_param('download', 0, PARAM_INT);
 $bulkdelete   = optional_param('bulkdelete', 0, PARAM_INT);
 $bulkdownload = optional_param('bulkdownload', 0, PARAM_INT);
 $confirm      = optional_param('confirm', '', PARAM_ALPHANUM);
@@ -59,6 +60,14 @@ if ($report == 'backup') {
         }
     }
 
+    // Download backup file
+    if (!empty($download)) {
+        report_fileusage_download_backup_file($download);
+        // We should never get here as exit has been called. But just in case...
+        redirect(new moodle_url($returnurl, array('report'=>$report)));
+        exit;
+    }
+
     // Bulk download of backup files.
     if (!empty($bulkdownload)) {
         report_fileusage_download_backup_files($bulkdownload);
@@ -66,6 +75,7 @@ if ($report == 'backup') {
         redirect(new moodle_url($returnurl, array('report'=>$report)));
         exit;
     }
+
 }
 
 
