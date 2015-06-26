@@ -81,7 +81,9 @@ function report_fileusage_get_backup_file_usage_table() {
                                                                     array('report' => 'backup',
                                                                           'delete' => $fl->id)),
                                                      $OUTPUT->pix_icon('t/delete', get_string('delete')));
-                $uftrow->cells[] = html_writer::link(new moodle_url("/pluginfile.php/$fl->contextid/$fl->component/$fl->filearea/$fl->filename"),
+                $uftrow->cells[] = html_writer::link(new moodle_url('/report/fileusage/index.php',
+                                                                    array('report'   => 'backup',
+                                                                          'download' => $fl->id)),
                                                      $OUTPUT->pix_icon('t/download', get_string('download')));
                 $uft->data[] = $uftrow;
             }
@@ -207,3 +209,28 @@ function report_fileusage_download_backup_files($userid) {
         }
     }
 }
+
+/**
+ * Download a single backup file
+ *
+ * @param integer $fileid  id from files table
+ * @return void
+ */
+function report_fileusage_download_backup_file($fileid) {
+    global $DB;
+
+    if ($filerec = $DB->get_record('files', array('id' => $fileid))) {
+        $fs = get_file_storage();
+        if ($file = $fs->get_file($filerec->contextid,
+                                  $filerec->component,
+                                  $filerec->filearea,
+                                  $filerec->itemid,
+                                  $filerec->filepath,
+                                  $filerec->filename)
+        ) {
+            send_stored_file($file, 0, 0, true, array('preview' => null));
+            exit;
+        }
+    }
+}
+
