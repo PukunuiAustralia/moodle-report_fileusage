@@ -51,8 +51,8 @@ if ($report == 'backup') {
         if ($userfiles = report_fileusage_get_backup_file_list($bulkdelete)) {
             $deletecount = 0;
             foreach ($userfiles as $uf) {
-                if (report_fileusage_delete_file($uf->id)) {
-                    $deletecount += 1;
+                if (report_fileusage_delete_file($uf->id) and ($uf->filename != '.')) {
+                    $deletecount++;
                 }
             }
             redirect(new moodle_url('/report/fileusage', array('report'=>$report)), get_string('bulkfilesdeleted', 'report_fileusage', $deletecount));
