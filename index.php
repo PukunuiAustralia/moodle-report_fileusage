@@ -26,7 +26,8 @@ $confirm      = optional_param('confirm', '', PARAM_ALPHANUM);
 
 $strpluginname = get_string('pluginname', 'report_fileusage');
 $returnurl     = '/report/fileusage/index.php';
-$reporttypes = array('backup' => get_string('userbackupfiles', 'report_fileusage'));
+$reporttypes = array('backup' => get_string('userbackupfiles', 'report_fileusage'),
+                     'course' => get_string('coursefiles', 'report_fileusage'));
 
 
 $PAGE->set_url($returnurl);
@@ -105,6 +106,10 @@ switch ($report) {
         } else {
             echo html_writer::table(report_fileusage_get_backup_file_usage_table());
         }
+        break;
+
+    case 'course':
+        echo html_writer::table(report_fileusage_get_course_file_usage_table());
         break;
 }
 
