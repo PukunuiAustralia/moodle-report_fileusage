@@ -50,6 +50,29 @@ function report_fileusage_get_backup_file_list($userid) {
 }
 
 /**
+ * Return a list of course files for a given course id
+ *
+ * @param integer $courseid  id from the course table
+ * @return mixed
+ */
+function report_fileusage_get_course_file_list($courseid) {
+    global $DB;
+
+    $coursecontext = context_course::instance($courseid);
+
+    $sql = 'SELECT f.component, SUM(f.filesize) AS filesize
+            FROM {files} f
+            INNER JOIN {context} ctx ON (ctx.id = f.contextid)
+            WHERE ctx.id = '.$coursecontext->id.'
+                OR ctx.path LIKE "%/'.$coursecontext->id.'/%" 
+            GROUP BY f.component
+            ORDER BY f.component';
+
+    return $DB->get_records_sql($sql, array('ccid1' => $coursecontext->id, 'ccid2' => $coursecontext->id));
+}
+
+
+/**
  * Given user data, return a table
  *
  * @param array $userdata
@@ -113,6 +136,49 @@ function report_fileusage_get_backup_file_usage_table() {
 
     return $table;
 }
+
+/**
+ * Return a table of course file usage
+ *
+ * @param array $userdata
+ * @return html_table
+ */
+function report_fileusage_get_course_file_usage_table() {
+    global $DB;
+
+    $table = new html_table();
+    $table->head = array(get_string('fullname'), get_string('fileusagecourses', 'report_fileusage'), '');
+    $table->data = array();
+
+    // We want all courses, hidden or not!
+    if ($courses = $DB->get_records('course', null, '', 'id, fullname')) {
+        foreach ($courses as $course) {
+            $coursetotalfiles = 0;
+            $cft = new html_table;
+            if ($coursedata = report_fileusage_get_course_file_list($course->id)) {
+                foreach ($coursedata as $cd) {
+                    if ($cd->filesize == 0) {
+                        continue;
+                    }
+
+                    $cftrow = new html_table_row();
+
+                    $cftrow->cells[] = $cd->component;
+                    $cftrow->cells[] = report_fileusage_human_filesize($cd->filesize);
+                    $coursetotalfiles += $cd->filesize;
+                    $cft->data[] = $cftrow;
+                }
+            }
+
+            $table->data[] = array(html_writer::link(new moodle_url('/course/view.php', array('id' => $course->id)),
+                                                     $course->fullname),
+                                   report_fileusage_human_filesize($coursetotalfiles),
+                                   html_writer::table($cft));
+        }
+    }
+    return $table;
+}
+
 
 /**
  * Delete a file given the id from the files table
