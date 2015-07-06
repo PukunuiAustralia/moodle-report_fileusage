@@ -37,7 +37,10 @@ Acknowledgements
 ----------------
 
 The original idea for this plugin came from Lindy Klein, Australian College of Nursing.
+
 Additional features suggested by Merrin Bennett, Australian Bureau of Meteorology
 
+
 Initial development work by Pukunui, http://pukunui.com/
+
 Additional funding by Australian Bureau of Meteorology, http://www.bom.gov.au/
